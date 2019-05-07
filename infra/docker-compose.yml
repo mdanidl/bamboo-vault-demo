@@ -1,0 +1,24 @@
+version: '3.7'
+services:
+  bamboo-srv:
+    image: atlassian/bamboo-server:latest
+    ports:
+      - "54663:54663"
+      - "8085:8085"
+  bamboo_agent:
+    depends_on:
+      - bamboo-srv
+      - vault
+    build: ../bamboo-agent
+    environment:
+      - VAULT_ADDR=http://vault:8200
+    init: true    
+    command: http://bamboo-srv:8085
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  vault:
+    image: vault:latest
+    ports:
+      - "8200:8200"
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=root
